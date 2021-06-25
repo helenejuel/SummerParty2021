@@ -1,0 +1,116 @@
+---
+title: "Summer-party-2021"
+author: "Helene Bæk Juel"
+date: "6/18/2021"
+output: html_document
+---
+```{r setup, include=FALSE}
+# Load packages
+library(tidyverse)
+
+# Load data
+funny <- read.csv(here::here("data/FUN-t.csv"))
+
+# rename columns
+funny <- funny %>%
+    rename(number_papers = How.many.scientific.papers.do.you.read.per.week.,
+           coffee_time = What.is.the.optimal.time.for.afternoon.coffee.tea.,
+           coffee_tea = Do.you.prefer.coffee.or.tea.,
+           coffee_cups = How.many.cups.of.coffee.do.you.drink.each.day.,
+           number_children = How.many.children.do.you.have.,
+           km_from_tower = How.many.km.from.the.tower.do.you.live.,
+           hours_zoom = How.many.hours.of.zoom.meetings.do.you.have.per.week.,
+           group_meeting = What.is.the.optimal.time.for.group.meeting.,
+           evening_work = Do.you.work.in.the.evening.,
+           yoga = Do.you.practice.yoga.,
+           run = Do.you.run.,
+           pets = Do.you.have.any.pets.,
+           liquorice = Do.you.like.liquorice.,
+           music = Do.you.work.with.music.in.your.ears.,
+           start_work = When.do.you.normally.start.work.,
+           end_work = When.do.you.normally.end.work.,
+           pajamas_zoom = Have.you.ever.done.a.zoom.meeting.in.pajamas.,
+           sports_zoom = Have.you.ever.done.a.zoom.meeting.in.sports.clothes.,
+           phys_active_days = How.many.days.week.are.you.physically.active.for.a.total.of.at.least.1.hour.day...physically.active.to.the.point.where.the.heart.rate.increases.and.your.breathing.becomes.faster.)
+
+# change to factor
+for(i in c(4, 7:12, 15, 19)) {
+    funny[ ,i] <- as.factor(funny[ ,i])
+}
+
+# change times to numeric
+getTime <- function(x){
+    sub(":",".",sub(":30",":50",x))
+    }
+
+funny$coffee_time <- as.numeric(getTime(funny$coffee_time))
+funny$group_meeting <- as.numeric(getTime(funny$group_meeting))
+funny$start_work <- as.numeric(getTime(funny$start_work))
+funny$end_work <- as.numeric(getTime(funny$end_work))
+
+# Change theme
+theme_set(theme_classic())
+```
+
+# Main findings from FUN tab
+
+## The more papers one reads, the later the afternoon coffee
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    drop_na(coffee_time) %>%
+    ggplot(aes(x = number_papers, y = coffee_time)) +
+    geom_point() +
+    geom_smooth(method = lm)
+```
+
+## The more children, the more zoom hours
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    ggplot(aes(x = number_children, y = hours_zoom)) +
+    geom_point() +
+    geom_smooth(method = lm)
+```
+
+## The later you end the later you start
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    ggplot(aes(x = start_work, y = end_work)) +
+    geom_point() +
+    geom_smooth(method = lm)
+```
+
+
+## The more children the higher the risk of liking liquorice
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    ggplot(aes(y = number_children, fill = liquorice)) +
+    geom_boxplot() +
+    scale_fill_viridis_d()
+```
+
+## The later afternoon coffee time, the higher the risk of pyjamas meeting
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    ggplot(aes(y = coffee_time, fill = pajamas_zoom)) +
+    geom_boxplot() +
+    scale_fill_viridis_d()
+```
+
+## The later the afternoon coffee time, the lower the risk of working in the evening
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    drop_na(evening_work) %>% 
+    ggplot(aes(y = coffee_time, fill = evening_work)) +
+    geom_boxplot() +
+    scale_fill_viridis_d()
+```
+
+## The more papers you read the lower the risk of working in the evening
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+funny %>%
+    drop_na(evening_work) %>% 
+    ggplot(aes(y = number_papers, fill = evening_work)) +
+    geom_boxplot() +
+    scale_fill_viridis_d()
+```
+
