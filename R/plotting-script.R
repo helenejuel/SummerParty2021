@@ -2,11 +2,11 @@
 library(tidyverse)
 
 # Load data
-FUN <- read.csv(here::here("data/FUN-t.csv"))
+funny <- read.csv(here::here("data/FUN-t.csv"))
 glimpse(FUN)
 
 # rename columns
-FUN <- FUN %>%
+funny <- funny %>%
     rename(number_papers = How.many.scientific.papers.do.you.read.per.week.,
            coffee_time = What.is.the.optimal.time.for.afternoon.coffee.tea.,
            coffee_tea = Do.you.prefer.coffee.or.tea.,
@@ -27,38 +27,42 @@ FUN <- FUN %>%
            sports_zoom = Have.you.ever.done.a.zoom.meeting.in.sports.clothes.,
            phys_active_days = How.many.days.week.are.you.physically.active.for.a.total.of.at.least.1.hour.day...physically.active.to.the.point.where.the.heart.rate.increases.and.your.breathing.becomes.faster.)
 
-str(FUN)
+str(funny)
 
 # change to factor
 for(i in c(4, 7:12, 15, 19)) {
-    FUN[ ,i] <- as.factor(FUN[ ,i])
+    funny[ ,i] <- as.factor(funny[ ,i])
 }
 
 # change to time
 #for(i in c(3, 16:18)) {
-#     FUN[ ,i] <- as.POSIXlt(FUN[ ,i])
+#     funny[ ,i] <- as.POSIXlt(funny[ ,i])
 # } # Not working
 
 # change times to numeric
-getTime <- function(x){sub(":",".",sub(":30",":50",x))}
+getTime <- function(x){
+    sub(":",".",
+        sub(":30",":50",x)
+        )
+    }
 
-FUN$coffee_time <- as.numeric(getTime(FUN$coffee_time))
-FUN$group_meeting <- as.numeric(getTime(FUN$group_meeting))
-FUN$start_work <- as.numeric(getTime(FUN$start_work))
-FUN$end_work <- <- as.numeric(getTime(FUN$end_work))
+funny$coffee_time <- as.numeric(getTime(funny$coffee_time))
+funny$group_meeting <- as.numeric(getTime(funny$group_meeting))
+funny$start_work <- as.numeric(getTime(funny$start_work))
+funny$end_work <- <- as.numeric(getTime(funny$end_work))
 
 # Change theme
 theme_set(theme_bw())
 
 # y = when afternoon tea, x = papers, the more papers one reads, the later the afternoon tea
-FUN %>%
+funny %>%
     drop_na(coffee_time) %>%
     ggplot(aes(x = number_papers, y = coffee_time)) +
     geom_point() +
     geom_smooth(method = lm)
 
 # y = children, x = zoom hours, the more children the more zoom hours
-FUN %>%
+funny %>%
     ggplot(aes(x = hours_zoom, y = number_children)) +
     geom_point() +
     geom_smooth(method = lm)
