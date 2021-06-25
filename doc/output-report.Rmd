@@ -40,7 +40,9 @@ for(i in c(4, 7:12, 15, 19)) {
 
 # change times to numeric
 getTime <- function(x){
-    sub(":",".",sub(":30",":50",x))
+    sub(":",".",
+        sub(":30",":50",x)
+        )
     }
 
 funny$coffee_time <- as.numeric(getTime(funny$coffee_time))
